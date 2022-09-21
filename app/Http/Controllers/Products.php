@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Jobs\AddProduct;
 use App\Models\Product;
 
 use Illuminate\Http\Request;
@@ -21,13 +22,7 @@ class Products extends Controller
      */
     public function store(Request $request)
     {
-        $product = new Product();
-        $product->name = $request->name;
-        $product->category = $request->category;
-        $product->SKU = $request->SKU;
-        $product->price = $request->price;
-        $product->save();
-
+        dispatch(new AddProduct($request->all()));
         return response()->json(['Success' => 'Product Created Successfully']);
     }
 
