@@ -14,7 +14,21 @@ class Products extends Controller
     public function index()
     {
         $products = Product::all();
-        return response()->json(['products' => $products]);
+
+        $productList = $products->map(function($product) {
+            $categories = $product->productCategories->map(function($productCategory) {
+                return $productCategory->category->name;
+            });
+
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'sku' => $product->sku,
+                'categories' => $categories->toArray()
+            ];
+        });
+
+        return response()->json(['products' => $productList]);
     }
 
     /**
