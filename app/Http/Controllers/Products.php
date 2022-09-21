@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductRequest;
 use App\Jobs\AddProduct;
 use App\Jobs\AddProductCategories;
 use App\Jobs\DeleteProduct;
@@ -32,10 +33,14 @@ class Products extends Controller
     /**
      * Insert a new Product 
      */
-    public function store(Request $request)
+    public function store(ProductRequest $request)
     {
-        dispatch(new AddProduct($request->all()));
-        return response()->json(['Success' => 'Product Created Successfully']);
+        if ($request->validated()) {
+            dispatch(new AddProduct($request->all()));
+            return response()->json(['Success' => 'Product Created Successfully']);
+        }
+
+        return response()->json(['Success' => 'Product wa not Created']);
     }
 
     /**
@@ -54,22 +59,25 @@ class Products extends Controller
     /**
      * Update an existing product
      */
-    public function update(Request $request)
+    public function update(ProductRequest $request)
     {
-        $parameters = $request->all();
-        $product = Product::find($request->get('id'));
+        if ($request->validated()) {
+            $product = Product::find($request->get('id'));
 
-        if (empty($product)) {
-            return response()->json(['product' => "No product found"]);
+            if (empty($product)) {
+                return response()->json(['product' => "No product found"]);
+            }
+
+            Bus::chain([
+                new UpdateProduct($product, $request->all()),
+                new DeleteProductCategories($product),
+                new AddProductCategories($product, $request->all())
+            ])->dispatch();
+
+            return response()->json(['success' => "Product Updated Successfully"]);
         }
 
-        Bus::chain([
-            new UpdateProduct($product, $request->all()),
-            new DeleteProductCategories($product),
-            new AddProductCategories($product, $request->all())
-        ])->dispatch();
-
-        return response()->json(['success' => "Product Updated Successfully"]);
+        return response()->json(['fail' => "Product was not updated"]);
     }
 
     /**
