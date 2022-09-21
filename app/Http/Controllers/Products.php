@@ -2,9 +2,14 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\AddProduct;
+use App\Jobs\AddProductCategories;
+use App\Jobs\DeleteProduct;
+use App\Jobs\DeleteProductCategories;
+use App\Jobs\UpdateProduct;
 use App\Models\Product;
 use App\Traits\ProductFormat;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
 
 class Products extends Controller
 {
@@ -51,12 +56,19 @@ class Products extends Controller
      */
     public function update(Request $request, $id) 
     {
-        $product = Product::findOrFail($id);
-        dd($product);
+        $product = Product::find($id);
 
+        if (empty($product)) {
+            return response()->json(['product' => "No product found"]);
+        }
 
-        // $product->update($request->all());
-        // return response()->json(['success' => "Product Updated Successfully"]);
+        Bus::chain(
+            new UpdateProduct($product, $request->all()),
+            new DeleteProductCategories($product),
+            new AddProductCategories($product, $request->all())
+        )->dispatch();
+
+        return response()->json(['success' => "Product Updated Successfully"]);
     }
 
     /**
@@ -64,7 +76,15 @@ class Products extends Controller
      */
     public function destroy(Request $request, $id) 
     {
-        $product = Product::findOrFail($id);
+        $product = Product::find($id);
+
+        if (empty($product)) {
+            return response()->json(['product' => "No product found"]);
+        }
+
+        dispatch(new DeleteProduct($product));
+        dispatch(new DeleteProductCategories($product));
+
         return response()->json(['success' => "Product deleted Successfully"]);
     }
 }
