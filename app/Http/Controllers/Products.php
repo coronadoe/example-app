@@ -34,6 +34,8 @@ class Products extends Controller
      */
     public function store(Request $request)
     {
+        dd($request);
+
         dispatch(new AddProduct($request->all()));
         return response()->json(['Success' => 'Product Created Successfully']);
     }
@@ -54,19 +56,20 @@ class Products extends Controller
     /**
      * Update an existing product
      */
-    public function update(Request $request, $id) 
+    public function update(Request $request)
     {
-        $product = Product::find($id);
+        $parameters = $request->all();
+        $product = Product::find($request->get('id'));
 
         if (empty($product)) {
             return response()->json(['product' => "No product found"]);
         }
 
-        Bus::chain(
+        Bus::chain([
             new UpdateProduct($product, $request->all()),
             new DeleteProductCategories($product),
             new AddProductCategories($product, $request->all())
-        )->dispatch();
+        ])->dispatch();
 
         return response()->json(['success' => "Product Updated Successfully"]);
     }

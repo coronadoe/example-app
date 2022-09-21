@@ -35,6 +35,7 @@ class DeleteProductCategories implements ShouldQueue
      */
     public function handle()
     {
+        Log::info('Deleting product categories for product id -> ' . $this->product->id);
         ProductCategory::where('product_id', $this->product->id)->delete();
     }
 }

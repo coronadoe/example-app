@@ -9,6 +9,8 @@ class Product extends Model
 {
     protected $table = "products";
 
+    protected $fillable = ['name', 'sku', 'price'];
+
     public function productCategories(): HasMany
     {
         return $this->hasMany(ProductCategory::class, 'product_id', 'id');
