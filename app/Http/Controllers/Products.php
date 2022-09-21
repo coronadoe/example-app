@@ -34,8 +34,6 @@ class Products extends Controller
      */
     public function store(Request $request)
     {
-        dd($request);
-
         dispatch(new AddProduct($request->all()));
         return response()->json(['Success' => 'Product Created Successfully']);
     }
@@ -77,16 +75,17 @@ class Products extends Controller
     /**
      * Destroy an existing product
      */
-    public function destroy(Request $request, $id) 
+    public function destroy(Request $request)
     {
-        $product = Product::find($id);
-
+        $product = Product::find($request->get('id'));
         if (empty($product)) {
             return response()->json(['product' => "No product found"]);
         }
 
-        dispatch(new DeleteProduct($product));
-        dispatch(new DeleteProductCategories($product));
+        Bus::chain([
+            new DeleteProductCategories($product),
+            new DeleteProduct($product),
+        ])->dispatch();
 
         return response()->json(['success' => "Product deleted Successfully"]);
     }

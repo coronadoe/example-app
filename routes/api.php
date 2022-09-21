@@ -22,4 +22,4 @@ Route::get('/', "Products@index");
 Route::post('/store', "Products@store");
 Route::get('/show/{$id}', "Products@show");
 Route::post('/update', "Products@update");
-Route::delete('/destroy/{$id}', "Products@destroy");
+Route::delete('/destroy', "Products@destroy");
