@@ -41,9 +41,9 @@ class Products extends Controller
     /**
      * Retrieve the details of the product
      */
-    public function show($id) 
+    public function show(Request $request)
     {
-        $product = Product::find($id);
+        $product = Product::find($request->get('id'));
         if (!empty($product)) {
             return response()->json(['product' => $this->getProductFormat($product)]);
         } 
