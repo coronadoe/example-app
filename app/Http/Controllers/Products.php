@@ -3,11 +3,13 @@ namespace App\Http\Controllers;
 
 use App\Jobs\AddProduct;
 use App\Models\Product;
-
+use App\Traits\ProductFormat;
 use Illuminate\Http\Request;
 
 class Products extends Controller
 {
+    use ProductFormat;
+
     /**
      * Display the list of products
      */
@@ -16,16 +18,7 @@ class Products extends Controller
         $products = Product::all();
 
         $productList = $products->map(function($product) {
-            $categories = $product->productCategories->map(function($productCategory) {
-                return $productCategory->category->name;
-            });
-
-            return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'sku' => $product->sku,
-                'categories' => $categories->toArray()
-            ];
+            return $this->getProductFormat($product);
         });
 
         return response()->json(['products' => $productList]);
@@ -47,7 +40,7 @@ class Products extends Controller
     {
         $product = Product::find($id);
         if (!empty($product)) {
-            return response()->json(['product' => $product]);
+            return response()->json(['product' => $this->getProductFormat($product)]);
         } 
         
         return response()->json(['product' => "No product found"]);
@@ -59,8 +52,11 @@ class Products extends Controller
     public function update(Request $request, $id) 
     {
         $product = Product::findOrFail($id);
-        $product->update($request->all());
-        return response()->json(['success' => "Product Updated Successfully"]);
+        dd($product);
+
+
+        // $product->update($request->all());
+        // return response()->json(['success' => "Product Updated Successfully"]);
     }
 
     /**
