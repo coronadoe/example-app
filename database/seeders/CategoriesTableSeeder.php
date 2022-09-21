@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Seeder;
 
 class CategoriesTableSeeder extends Seeder
@@ -30,7 +30,7 @@ class CategoriesTableSeeder extends Seeder
      */
     public function run()
     {
-        $this->categories()->each(function($attribute, $title) {
+        $this->categories()->each(function($title, $index) {
             Category::firstOrCreate(['name' => $title]);
         });
     }
