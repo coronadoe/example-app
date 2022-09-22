@@ -41,13 +41,15 @@ class AddProduct implements ShouldQueue
         $product->sku = $this->productValues['sku'];
         $product->save();
 
-        collect($this->productValues['categories'])->each(function($value, $index) use ($product) {
-            Log::info('Adding value ' . $value . ' to product id ' . $product->id);
+        if (!empty($this->productValues['categories'])) {
+            collect($this->productValues['categories'])->each(function($value, $index) use ($product) {
+                Log::info('Adding value ' . $value . ' to product id ' . $product->id);
 
-            ProductCategory::create([
-                'product_id' => $product->id,
-                'category_id' => $value
-                ]);
-        });
+                ProductCategory::create([
+                    'product_id' => $product->id,
+                    'category_id' => $value
+                    ]);
+            });
+        }
     }
 }
