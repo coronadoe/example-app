@@ -19,8 +19,7 @@ class CategoriesTableSeeder extends Seeder
         'Sichuan pepper',
         'Peru', 
         'Potato', 
-        'Yellow', 
-        'Chili pepper',
+        'Yellow Chili pepper',
     ];
 
     /**
